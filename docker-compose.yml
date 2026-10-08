@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: pitchiq-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pitchiq
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pitchiq_pgdata:/var/lib/postgresql/data
+
+volumes:
+  pitchiq_pgdata:

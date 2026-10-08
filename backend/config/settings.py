@@ -66,6 +66,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "api.User"
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
