@@ -75,6 +75,21 @@ python manage.py runserver
 
 ---
 
+## Statcast data (ML)
+
+Pulls 2021-2025 regular season Statcast data with `pybaseball` into `backend/ml/data/` (gitignored). It downloads in weekly chunks and skips ones it already has, so you can stop it and rerun.
+
+```bash
+cd backend
+python -m ml.collect_statcast --combine                 # all seasons
+python -m ml.collect_statcast --seasons 2024 --combine  # one season
+python -m ml.collect_statcast --start 2024-04-01 --end 2024-04-02 --force  # small test pull
+```
+
+Tests: `python -m pytest ml`
+
+---
+
 ## Frontend
 
 App: http://localhost:5173

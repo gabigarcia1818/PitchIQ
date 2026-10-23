@@ -6,3 +6,7 @@ django-filter>=25.0,<27.0
 psycopg[binary]>=3.2,<4
 python-dotenv>=1.0,<2
 scikit-learn>=1.5,<2
+pybaseball>=2.2.7,<3
+pandas>=2.2,<4
+pyarrow>=15
+pytest>=8
