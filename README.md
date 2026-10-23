@@ -77,14 +77,35 @@ python manage.py runserver
 
 ## Statcast data (ML)
 
-Pulls 2021-2025 regular season Statcast data with `pybaseball` into `backend/ml/data/` (gitignored). It downloads in weekly chunks and skips ones it already has, so you can stop it and rerun.
+Pulls 2021-2025 regular season Statcast data with `pybaseball` into `backend/ml/data/` (gitignored), then cleans it into two tables: one row per pitch and one row per pitcher per game. Downloads go in weekly chunks and skip ones you already have, so you can stop it and rerun.
 
 ```bash
 cd backend
-python -m ml.collect_statcast --combine                 # all seasons
-python -m ml.collect_statcast --seasons 2024 --combine  # one season
-python -m ml.collect_statcast --start 2024-04-01 --end 2024-04-02 --force  # small test pull
+python -m ml.collect_statcast --seasons 2024 --combine   # or leave off --seasons for all 5
+python -m ml.clean_statcast                              # add --format csv for csv
 ```
+
+One season is ~20s to download, ~710k pitches, ~20k pitcher games. All 5 seasons is around 500 MB raw and cleans in ~15s.
+
+Cleaning keeps regular season pitches only, drops pickoffs/non-pitches and rows missing velo, dedupes on `(game_pk, at_bat_number, pitch_number)`, and throws out obviously bad values (velo outside 30-110, spin outside 0-4000, etc).
+
+### Loading it
+
+```python
+from ml.datasets import load_pitcher_games, load_pitches, PITCHER_GAME_FEATURES
+
+games = load_pitcher_games()        # sample=True uses the 500 row sample in ml/sample/
+X = games[PITCHER_GAME_FEATURES]
+pitches = load_pitches(seasons=[2024])
+```
+
+Pitcher game features: pitch count, batters faced, innings, avg/max/min velo, velo std, avg/max spin, extension, release point, fastball %, fastball velo, and `days_rest` (days since their last outing that season).
+
+A few things to watch for:
+- Some features have NaNs (no spin reading, no fastballs, first game of a season), so impute or use a model that handles them.
+- Split train/test by season or date, not randomly.
+- Rows describe the game itself, so for predicting a future game use earlier rows (e.g. `groupby("pitcher").shift(1)`).
+- Outings with avg velo under ~75 are mostly position players pitching.
 
 Tests: `python -m pytest ml`
 
