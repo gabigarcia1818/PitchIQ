@@ -5,7 +5,7 @@ from rest_framework import viewsets, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
@@ -39,27 +39,18 @@ class PitcherOutingViewSet(viewsets.ModelViewSet):
 
 class PitcherDailyCheckInViewSet(viewsets.ModelViewSet):
     serializer_class = PitcherDailyCheckInSerializer
-    permission_classes = [IsAuthenticated]
-
-    http_method_names = ["get", "post", "head", "options"]
+    permission_classes = [IsPitcher]
 
     def get_queryset(self):
         return PitcherDailyCheckIn.objects.filter(pitcher=self.request.user)
 
-    def get_permissions(self):
-        permissions = super().get_permissions()
-
-        if self.action == "create":
-            permissions.append(IsPitcher())
-
-        return permissions
-
     def perform_create(self, serializer):
         pitcher = self.request.user
         today = timezone.localdate()
-        already_checked_in  = PitcherDailyCheckIn.objects.filter(
-            pitcher=self.request.user,
-            date=today,).exists()
+        already_checked_in = PitcherDailyCheckIn.objects.filter(
+            pitcher=pitcher,
+            date=today,
+        ).exists()
 
         if already_checked_in:
             raise ValidationError({"detail": "You have already checked in."})
@@ -79,3 +70,10 @@ class PitcherDailyCheckInViewSet(viewsets.ModelViewSet):
             if duplicate_exists:
                 raise ValidationError({"detail": "You have already checked in."})
             raise
+
+    def perform_destroy(self, instance):
+        if instance.date != timezone.localdate():
+            raise ValidationError(
+                {"detail": "Only today's check-in can be deleted and replaced."}
+            )
+        instance.delete()
