@@ -1,28 +1,35 @@
 {
-  "best": "random_forest",
-  "train_rows": 32775,
-  "test_rows": 8351,
+  "best": "logistic_regression",
+  "train_rows": 19802,
+  "test_rows": 19934,
   "results": {
     "dummy_majority": {
-      "accuracy": 0.9599,
+      "accuracy": 0.9325,
       "precision": 0.0,
       "recall": 0.0,
       "f1": 0.0,
       "roc_auc": 0.5
     },
     "logistic_regression": {
-      "accuracy": 0.9502,
-      "precision": 0.4459,
-      "recall": 0.997,
-      "f1": 0.6162,
-      "roc_auc": 0.9858
+      "accuracy": 0.6328,
+      "precision": 0.096,
+      "recall": 0.5279,
+      "f1": 0.1625,
+      "roc_auc": 0.6141
     },
     "random_forest": {
-      "accuracy": 0.9989,
-      "precision": 0.9766,
-      "recall": 0.997,
-      "f1": 0.9867,
-      "roc_auc": 0.9998
+      "accuracy": 0.9296,
+      "precision": 0.1609,
+      "recall": 0.0104,
+      "f1": 0.0196,
+      "roc_auc": 0.6222
+    },
+    "rule_pitch_count": {
+      "accuracy": 0.874,
+      "precision": 0.0473,
+      "recall": 0.0454,
+      "f1": 0.0463,
+      "roc_auc": 0.5554
     }
   }
 }
