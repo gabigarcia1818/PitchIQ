@@ -109,6 +109,15 @@ A few things to watch for:
 
 Tests: `python -m pytest ml`
 
+### Training the risk model
+
+In the `backend/` directory, train and evaluate by running:
+
+```bash
+python -m ml.train_baseline
+python -m ml.train_baseline --seasons 2024 2025  # To limit training to specific seasons
+```
+
 ---
 
 ## Frontend
