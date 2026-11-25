@@ -1,5 +1,6 @@
 from django.utils import timezone
 from django.db import transaction, IntegrityError
+from .risk_scoring import recalculate_risk
 
 from rest_framework import viewsets, generics
 from rest_framework.decorators import api_view, permission_classes
@@ -9,7 +10,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
-from .models import PitcherOuting, PitcherDailyCheckIn
+from .models import PitcherOuting, PitcherDailyCheckIn, OutingType, PitcherRiskAssessment
 from .serializers import PitcherOutingSerializer, PitcherDailyCheckInSerializer, MeSerializer, RegisterSerializer, RoleTokenSerializer
 from .permissions import IsStaffRole, IsPitcher
 
@@ -36,6 +37,21 @@ class PitcherOutingViewSet(viewsets.ModelViewSet):
     serializer_class = PitcherOutingSerializer
     permission_classes = [IsStaffRole]
     filterset_fields = ["pitcher", "outing_type", "date"]
+
+    def _save_and_update_risk(self, serializer):
+        with transaction.atomic():
+            outing = serializer.save()
+
+            if outing.outing_type == OutingType.GAME:
+                recalculate_risk(outing)
+            else:
+                PitcherRiskAssessment.objects.filter(outing=outing).delete()
+
+    def perform_create(self, serializer):
+        self._save_and_update_risk(serializer)
+
+    def perform_update(self, serializer):
+        self._save_and_update_risk(serializer)
 
 class PitcherDailyCheckInViewSet(viewsets.ModelViewSet):
     serializer_class = PitcherDailyCheckInSerializer

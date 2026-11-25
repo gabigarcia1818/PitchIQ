@@ -3,6 +3,7 @@ from .models import PitcherOuting, PitcherDailyCheckIn
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
+from .models import PitcherRiskAssessment
 
 ## For registering or creating a new user
 class RegisterSerializer(serializers.ModelSerializer):
@@ -32,8 +33,14 @@ class RoleTokenSerializer(TokenObtainPairSerializer):
         token["role"] = user.role
         return token
 
+class PitcherRiskAssessmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PitcherRiskAssessment
+        fields = ["probability", "model_name", "calculated_at"]
+
 class PitcherOutingSerializer(serializers.ModelSerializer):
     pitcher_username = serializers.CharField(source="pitcher.username", read_only=True)
+    risk_assessment = PitcherRiskAssessmentSerializer(read_only=True, allow_null=True)
 
     class Meta:
         model = PitcherOuting
@@ -46,10 +53,24 @@ class PitcherOutingSerializer(serializers.ModelSerializer):
             "pitch_count",
             "avg_velocity",
             "rest_days",
+            "batters_faced",
+            "innings_pitched_approx",
+            "max_velo",
+            "min_velo",
+            "velo_std",
+            "avg_spin",
+            "max_spin",
+            "avg_extension",
+            "avg_release_pos_x",
+            "avg_release_pos_z",
+            "fastball_pct",
+            "avg_fastball_velo",
+            "max_fastball_velo",
+            "risk_assessment",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "risk_assessment"]
 
 class PitcherDailyCheckInSerializer(serializers.ModelSerializer):
     pitcher_username = serializers.CharField(source="pitcher.username", read_only=True)
