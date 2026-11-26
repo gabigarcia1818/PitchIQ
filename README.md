@@ -66,6 +66,14 @@ source .venv/bin/activate
 python manage.py runserver
 ```
 
+### Testing
+Database must be running\
+For testing risk score recalc on new outing data:
+```bash
+cd backend
+python manage.py test api
+```
+
 ### After changes
 | What changed | Commands |
 |--------------|----------|
