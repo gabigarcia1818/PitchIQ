@@ -8,8 +8,8 @@ CHECKINS = "/api/daily-check-ins/"
 
 class PitcherDataIsolationTests(APITestCase):
     def setUp(self):
-        self.a = User.objects.create_user("pitcher_a", password="Pw12345!x", role=Role.PITCHER)
-        self.b = User.objects.create_user("pitcher_b", password="Pw12345!x", role=Role.PITCHER)
+        self.a = User.objects.create_user("pitcher_a", role=Role.PITCHER)
+        self.b = User.objects.create_user("pitcher_b", role=Role.PITCHER)
         self.checkin_a = self.make_checkin(self.a)
         self.checkin_b = self.make_checkin(self.b)
 
