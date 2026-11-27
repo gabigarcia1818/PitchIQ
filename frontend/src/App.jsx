@@ -1,11 +1,17 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import HealthStatus from "./components/HealthStatus";
+import HighRiskAlerts from "./components/HighRiskAlerts";
 
 // Placeholders for now
-const Dashboard = () => <h2>Staff Dashboard</h2>
+const Dashboard = () => (
+  <>
+    <h2>Staff Dashboard</h2>
+    <HighRiskAlerts />
+  </>
+)
 const CheckIn = () => <h2>Pitcher Daily Check-in</h2>
 
 function RequireRole({ roles, children}) {
@@ -27,6 +33,7 @@ function Home() {
 // Main app component
 export default function App() {
   const { user, logout } = useAuth();
+  const location = useLocation();
   return (
     // Displays the health status of the API
     <>
@@ -36,6 +43,9 @@ export default function App() {
       <p>
         Signed in as {user.username} ({user.role}) <button onClick={logout}>Log out</button>
       </p>
+    )}
+    {user && (user.role === "manager" || user.role === "admin") && location.pathname !== "/dashboard" && (
+      <HighRiskAlerts compact />
     )}
 
     <Routes>

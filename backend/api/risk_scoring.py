@@ -8,6 +8,7 @@ import pandas as pd
 from django.conf import settings
 from django.db.models import Avg
 
+from .alerts import maybe_create_high_risk_alert
 from .models import PitcherOuting, PitcherRiskAssessment
 
 @lru_cache(maxsize=1)
@@ -66,11 +67,20 @@ def recalculate_risk(outing):
     positive_class_index = list(model.classes_).index(1)
     probability = model.predict_proba(model_input)[0][positive_class_index]
 
+    try:
+        previous_probability = outing.risk_assessment.probability
+    except PitcherRiskAssessment.DoesNotExist:
+        previous_probability = None
+
     assessment, _ = PitcherRiskAssessment.objects.update_or_create(
         outing=outing,
         defaults={
             "probability": Decimal(str(probability)),
             "model_name": bundle["name"],
         },
+    )
+    maybe_create_high_risk_alert(
+        assessment,
+        previous_probability=previous_probability,
     )
     return assessment

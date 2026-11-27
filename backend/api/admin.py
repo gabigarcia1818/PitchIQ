@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
-from .models import PitcherDailyCheckIn, PitcherOuting, Team, User, PitcherRiskAssessment
+from .models import HighRiskAlert, PitcherDailyCheckIn, PitcherOuting, Team, User, PitcherRiskAssessment
 
 
 @admin.register(Team)
@@ -57,3 +57,11 @@ class PitcherRiskAssessmentAdmin(admin.ModelAdmin):
     list_select_related = ("outing", "outing__pitcher")
     search_fields = ("outing__pitcher__username",)
     ordering = ("-calculated_at",)
+
+
+@admin.register(HighRiskAlert)
+class HighRiskAlertAdmin(admin.ModelAdmin):
+    list_display = ("pitcher", "risk_score", "created_at")
+    list_select_related = ("pitcher", "risk_assessment", "risk_assessment__outing")
+    search_fields = ("pitcher__username",)
+    ordering = ("-created_at",)
