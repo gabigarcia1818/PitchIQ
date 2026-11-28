@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
-from .models import PitcherDailyCheckIn, PitcherOuting, Team, User
+from .models import PitcherDailyCheckIn, PitcherOuting, Team, User, PitcherRiskAssessment
 
 
 @admin.register(Team)
@@ -12,13 +12,13 @@ class TeamAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
-    list_display = ("username", "email", "role", "team", "is_staff")
+    list_display = ("username", "email", "role", "team", "throws_left", "is_staff")
     list_filter = ("role", "team", "is_staff", "is_active")
     fieldsets = DjangoUserAdmin.fieldsets + (
-        ("PitchIQ", {"fields": ("role", "team")}),
+        ("PitchIQ", {"fields": ("role", "team", "throws_left")}),
     )
     add_fieldsets = DjangoUserAdmin.add_fieldsets + (
-        ("PitchIQ", {"fields": ("role", "team")}),
+        ("PitchIQ", {"fields": ("role", "team", "throws_left")}),
     )
 
 
@@ -50,3 +50,10 @@ class PitcherDailyCheckInAdmin(admin.ModelAdmin):
     list_filter = ("date", "pitcher__team")
     search_fields = ("pitcher__username",)
     date_hierarchy = "date"
+
+@admin.register(PitcherRiskAssessment)
+class PitcherRiskAssessmentAdmin(admin.ModelAdmin):
+    list_display = ("outing", "probability", "model_name", "calculated_at")
+    list_select_related = ("outing", "outing__pitcher")
+    search_fields = ("outing__pitcher__username",)
+    ordering = ("-calculated_at",)

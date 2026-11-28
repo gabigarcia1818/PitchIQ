@@ -42,7 +42,7 @@ class User(AbstractUser):
         blank=True,
         related_name="members",
     )
-
+    throws_left = models.BooleanField(null=True, blank=True)
     objects = CustomUserManager()
 
     class Meta:
@@ -73,6 +73,24 @@ class PitcherOuting(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Additional optional fields to match risk classification model inputs
+    batters_faced = models.PositiveSmallIntegerField(null=True, blank=True)
+    innings_pitched_approx = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    max_velo = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    min_velo = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    velo_std = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+
+    avg_spin = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    max_spin = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    avg_extension = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True)
+    avg_release_pos_x = models.DecimalField(max_digits=7, decimal_places=3, null=True, blank=True)
+    avg_release_pos_z = models.DecimalField(max_digits=7, decimal_places=3, null=True, blank=True)
+
+    fastball_pct = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(1)])
+    avg_fastball_velo = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    max_fastball_velo = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
 
     class Meta:
         ordering = ["-date", "-created_at"]
@@ -121,3 +139,17 @@ class PitcherDailyCheckIn(models.Model):
 
     def __str__(self) -> str:
         return f"{self.pitcher.username} check-in {self.date}"
+
+class PitcherRiskAssessment(models.Model):
+    outing = models.OneToOneField(
+        PitcherOuting,
+        on_delete=models.CASCADE,
+        related_name="risk_assessment",
+    )
+    probability = models.DecimalField(
+        max_digits=7,
+        decimal_places=6,
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
+    )
+    model_name = models.CharField(max_length=100)
+    calculated_at = models.DateTimeField(auto_now=True)
