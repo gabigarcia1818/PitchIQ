@@ -3,7 +3,7 @@ from .models import PitcherOuting, PitcherDailyCheckIn
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
-from .models import PitcherRiskAssessment
+from .models import HighRiskAlert, PitcherRiskAssessment
 
 ## For registering or creating a new user
 class RegisterSerializer(serializers.ModelSerializer):
@@ -89,3 +89,21 @@ class PitcherDailyCheckInSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "pitcher", "date", "created_at", "updated_at"]
+
+class HighRiskAlertSerializer(serializers.ModelSerializer):
+    pitcher_username = serializers.CharField(source="pitcher.username", read_only=True)
+    outing = serializers.IntegerField(source="risk_assessment.outing_id", read_only=True)
+    outing_date = serializers.DateField(source="risk_assessment.outing.date", read_only=True)
+
+    class Meta:
+        model = HighRiskAlert
+        fields = [
+            "id",
+            "pitcher",
+            "pitcher_username",
+            "risk_score",
+            "outing",
+            "outing_date",
+            "created_at",
+        ]
+        read_only_fields = fields

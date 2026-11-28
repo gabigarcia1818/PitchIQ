@@ -10,8 +10,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
-from .models import PitcherOuting, PitcherDailyCheckIn, OutingType, PitcherRiskAssessment
-from .serializers import PitcherOutingSerializer, PitcherDailyCheckInSerializer, MeSerializer, RegisterSerializer, RoleTokenSerializer
+from .models import HighRiskAlert, PitcherOuting, PitcherDailyCheckIn, OutingType, PitcherRiskAssessment
+from .serializers import PitcherOutingSerializer, PitcherDailyCheckInSerializer, MeSerializer, RegisterSerializer, RoleTokenSerializer, HighRiskAlertSerializer
 from .permissions import IsStaffRole, IsPitcher
 
 @api_view(["GET"])
@@ -93,3 +93,12 @@ class PitcherDailyCheckInViewSet(viewsets.ModelViewSet):
                 {"detail": "Only today's check-in can be deleted and replaced."}
             )
         instance.delete()
+
+class HighRiskAlertViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = HighRiskAlertSerializer
+    permission_classes = [IsStaffRole]
+    queryset = HighRiskAlert.objects.select_related(
+        "pitcher",
+        "risk_assessment",
+        "risk_assessment__outing",
+    )

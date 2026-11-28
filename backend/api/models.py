@@ -153,3 +153,36 @@ class PitcherRiskAssessment(models.Model):
     )
     model_name = models.CharField(max_length=100)
     calculated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.outing} risk {self.probability}"
+
+
+class HighRiskAlert(models.Model):
+    pitcher = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="high_risk_alerts",
+        limit_choices_to={"role": Role.PITCHER},
+    )
+    risk_assessment = models.ForeignKey(
+        PitcherRiskAssessment,
+        on_delete=models.CASCADE,
+        related_name="alerts",
+    )
+    risk_score = models.DecimalField(
+        max_digits=7,
+        decimal_places=6,
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["-created_at"]),
+            models.Index(fields=["pitcher", "-created_at"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.pitcher.username} high-risk alert {self.risk_score}"

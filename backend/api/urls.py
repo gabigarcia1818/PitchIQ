@@ -9,12 +9,14 @@ from .views import (
     MeView,
     PitcherOutingViewSet,
     PitcherDailyCheckInViewSet,
+    HighRiskAlertViewSet,
 )
 
 
 router = DefaultRouter()
 router.register(r"outings", PitcherOutingViewSet, basename="outing")
 router.register(r"daily-check-ins", PitcherDailyCheckInViewSet, basename="daily-check-in")
+router.register(r"high-risk-alerts", HighRiskAlertViewSet, basename="high-risk-alert")
 
 urlpatterns = [
     path("health/", health),
