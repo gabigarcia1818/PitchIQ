@@ -71,7 +71,7 @@ Database must be running\
 For testing risk score recalc on new outing data:
 ```bash
 cd backend
-python manage.py test api
+python manage.py test api.risk_scoring_tests
 ```
 
 ### After changes
