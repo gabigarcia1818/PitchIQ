@@ -8,12 +8,10 @@ class RiskAssessmentApiTests(APITestCase):
     def setUp(self):
         manager = User.objects.create_user(
             username="manager_test",
-            password="test-password",
             role=Role.MANAGER,
         )
         self.pitcher = User.objects.create_user(
             username="pitcher_test",
-            password="test-password",
             role=Role.PITCHER,
             throws_left=True,
         )
